@@ -1,10 +1,9 @@
 import os
 
-import openai
+import google.generativeai as genai
 import reflex as rx
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
-openai.api_base = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
+genai.config(os.environ["GEMINI_API_KEY"])
 
 
 class QA(rx.Base):
@@ -96,35 +95,18 @@ class State(rx.State):
         if self.question == "":
             return
 
-        # Add the question to the list of questions.
-        qa = QA(question=self.question, answer="")
-        self.chats[self.current_chat].append(qa)
 
-        # Clear the input and start the processing.
-        self.processing = True
-        self.question = ""
-        yield
-
-        # Build the messages.
-        messages = [
-            {"role": "system", "content": "You are a friendly chatbot named Reflex."}
-        ]
-        for qa in self.chats[self.current_chat]:
-            messages.append({"role": "user", "content": qa.question})
-            messages.append({"role": "assistant", "content": qa.answer})
 
         # Remove the last mock answer.
         messages = messages[:-1]
 
         # Start a new session to answer the question.
-        session = openai.ChatCompletion.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
-            messages=messages,
-            stream=True,
-        )
+        model_name = os.getenv("MODEL", "gemini-pro")
+        model = genai.GenerativeModel(model_name)
+        chat = model.start_chat(history=[])
 
         # Stream the results, yielding after every word.
-        for item in session:
+        for item in session.history:
             if hasattr(item.choices[0].delta, "content"):
                 answer_text = item.choices[0].delta.content
                 self.chats[self.current_chat][-1].answer += answer_text
