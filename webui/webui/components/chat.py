@@ -27,7 +27,7 @@ def message(qa: QA) -> rx.Component:
         ),
         rx.box(
             rx.text(
-                qa.answer,
+                rx.markdown(qa.answer),
                 bg=styles.accent_color,
                 shadow=styles.shadow_light,
                 **styles.message_style,
@@ -78,11 +78,12 @@ def action_bar() -> rx.Component:
                             type_="submit",
                             _hover={"bg": styles.accent_color},
                             style=styles.input_style,
+                            
                         ),
                     ),
                     is_disabled=State.processing,
                 ),
-                on_submit=State.process_question,
+                on_submit=[State.process_question, State.clear_question],
                 width="100%",
             ),
             rx.text(

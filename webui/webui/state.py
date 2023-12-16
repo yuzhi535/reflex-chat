@@ -7,6 +7,8 @@ genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 model_name = os.getenv("MODEL", "gemini-pro")
 model = genai.GenerativeModel(model_name)
+chat = model.start_chat(history=[])
+
 
 class QA(rx.Base):
     """A question and answer pair."""
@@ -44,14 +46,17 @@ class State(rx.State):
 
     # Whether the modal is open.
     modal_open: bool = False
-    
+
+    def clear_question(self, form_data: dict[str, str]):
+        self.question = ""
+
     def create_chat(self):
         """Create a new chat."""
         # Add the new chat to the list of chats.
         self.current_chat = self.new_chat_name
         self.chats[self.new_chat_name] = []
-        
-        self.chat = model.start_chat(history=[])
+
+        chat = model.start_chat(history=[])
 
         # Toggle the modal.
         self.modal_open = False
@@ -99,13 +104,14 @@ class State(rx.State):
         # Check if the question is empty
         if self.question == "":
             return
-        
+        qa = QA(question=self.question, answer="")
+        self.chats[self.current_chat].append(qa)
         # Remove the last mock answer.
-        question = self.question
+        question = qa.question
 
         # Start a new session to answer the question.
 
-        session = self.chat.send_message(question)
+        session = chat.send_message(question, stream=True)
 
         # Stream the results, yielding after every word.
         for item in session:
