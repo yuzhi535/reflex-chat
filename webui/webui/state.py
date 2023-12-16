@@ -3,8 +3,10 @@ import os
 import google.generativeai as genai
 import reflex as rx
 
-genai.config(os.environ["GEMINI_API_KEY"])
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
+model_name = os.getenv("MODEL", "gemini-pro")
+model = genai.GenerativeModel(model_name)
 
 class QA(rx.Base):
     """A question and answer pair."""
@@ -23,6 +25,7 @@ class State(rx.State):
 
     # A dict from the chat name to the list of questions and answers.
     chats: dict[str, list[QA]] = DEFAULT_CHATS
+    # chats = DEFAULT_CHATS
 
     # The current chat name.
     current_chat = "Intros"
@@ -41,12 +44,14 @@ class State(rx.State):
 
     # Whether the modal is open.
     modal_open: bool = False
-
+    
     def create_chat(self):
         """Create a new chat."""
         # Add the new chat to the list of chats.
         self.current_chat = self.new_chat_name
         self.chats[self.new_chat_name] = []
+        
+        self.chat = model.start_chat(history=[])
 
         # Toggle the modal.
         self.modal_open = False
@@ -94,24 +99,19 @@ class State(rx.State):
         # Check if the question is empty
         if self.question == "":
             return
-
-
-
+        
         # Remove the last mock answer.
-        messages = messages[:-1]
+        question = self.question
 
         # Start a new session to answer the question.
-        model_name = os.getenv("MODEL", "gemini-pro")
-        model = genai.GenerativeModel(model_name)
-        chat = model.start_chat(history=[])
+
+        session = self.chat.send_message(question)
 
         # Stream the results, yielding after every word.
-        for item in session.history:
-            if hasattr(item.choices[0].delta, "content"):
-                answer_text = item.choices[0].delta.content
-                self.chats[self.current_chat][-1].answer += answer_text
-                self.chats = self.chats
-                yield
+        for item in session:
+            answer_text = item.text
+            self.chats[self.current_chat][-1].answer += answer_text
+            self.chats = self.chats
 
         # Toggle the processing flag.
         self.processing = False
