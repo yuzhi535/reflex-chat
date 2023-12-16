@@ -1,6 +1,6 @@
 # Reflex Chat App
 
-A user-friendly, highly customizable Python web app designed to demonstrate LLMs in a ChatGPT format.
+A user-friendly, highly customizable Python web app designed to demonstrate LLMs in a gemini format.
 
 <div align="center">
 <img src="./docs/demo.gif" alt="icon"/>
@@ -8,10 +8,10 @@ A user-friendly, highly customizable Python web app designed to demonstrate LLMs
 
 # Getting Started
 
-You'll need a valid OpenAI subscription - save your API key under the environment variable `OPENAI_API_KEY`:
+You'll need a valid gemini subscription - save your API key under the environment variable `GEMINI_API_KEY`:
 
 ```bash
-export OPENAI_API_KEY="YOUR_OPENAI_API_KEY" # replace me!
+export OPENAI_API_KEY="YOUR_GEMINI_API_KEY" # replace me!
 ```
 
 ### 🧬 1. Clone the Repo
@@ -63,3 +63,7 @@ If you'd like to contribute, please do the following:
 # License
 
 The following repo is licensed under the MIT License.
+
+# original repo
+
+<https://github.com/reflex-dev/reflex-chat>
