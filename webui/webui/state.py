@@ -7,6 +7,7 @@ genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 model_name = os.getenv("MODEL", "gemini-pro")
 model = genai.GenerativeModel(model_name)
+histories = {"Intros": []}
 chat = model.start_chat(history=[])
 
 
@@ -72,9 +73,11 @@ class State(rx.State):
     def delete_chat(self):
         """Delete the current chat."""
         del self.chats[self.current_chat]
+        histories.pop(self.current_chat)
         if len(self.chats) == 0:
             self.chats = DEFAULT_CHATS
         self.current_chat = list(self.chats.keys())[0]
+        chat = model.start_chat(history=histories[self.current_chat] if self.current_chat in histories.keys() else [])
         self.toggle_drawer()
 
     def set_chat(self, chat_name: str):
@@ -84,6 +87,7 @@ class State(rx.State):
             chat_name: The name of the chat.
         """
         self.current_chat = chat_name
+        chat = model.start_chat(history=histories[self.current_chat])
         self.toggle_drawer()
 
     @rx.var
@@ -112,12 +116,15 @@ class State(rx.State):
         # Start a new session to answer the question.
 
         session = chat.send_message(question, stream=True)
+        self.question=""
 
         # Stream the results, yielding after every word.
         for item in session:
             answer_text = item.text
             self.chats[self.current_chat][-1].answer += answer_text
             self.chats = self.chats
-
+            yield
+        
+        histories[self.new_chat_name] = chat.history
         # Toggle the processing flag.
         self.processing = False

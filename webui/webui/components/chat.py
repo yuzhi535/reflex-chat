@@ -87,7 +87,7 @@ def action_bar() -> rx.Component:
                 width="100%",
             ),
             rx.text(
-                "ReflexGPT may return factually incorrect or misleading responses. Use discretion.",
+                "Gemini-zyx-GPT may return factually incorrect or misleading responses. Use discretion.",
                 font_size="xs",
                 color="#fff6",
                 text_align="center",
