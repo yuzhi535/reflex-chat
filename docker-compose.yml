@@ -1,0 +1,34 @@
+# this is for docker engine as a server
+version: '3.2'
+services:
+  engine:
+    image: reflex-engine:prd
+    entrypoint: /usr/bin/reflex-engine
+    environment:
+      - GEMINI_API_KEY=""
+    ports:
+      - published: 54000
+        target: 54000
+        mode: host
+    #entrypoint: sleep 9000
+    deploy:
+#      placement:
+#        constraints:
+#          - node.role == worker
+#          - engine.labels.co.divvy.zone == mgz
+#          - engine.labels.co.divvy.region == p1
+      replicas: 1
+#      update_config:
+#        parallelism: 1
+#        delay: 30s
+#        max_failure_ratio: 0
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    # setup a docker secret with the engine config
+    # see example file: REFLEX_ENGINE_CONFIG.json
+    # secrets:
+    #   - source: reflex-cfg-v1
+    #     target: REFLEX_ENGINE_CONFIG
