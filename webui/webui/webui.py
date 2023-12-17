@@ -6,7 +6,11 @@ from webui import styles
 from webui.components import chat, modal, navbar, sidebar
 from webui.state import State
 
-
+@rx.page(
+    title='Gemini-zyx-GPT',
+    description='Gemini-zyx-chat',
+    image='/assets/favicon.ico',
+)
 def index() -> rx.Component:
     """The main app."""
     return rx.vstack(
