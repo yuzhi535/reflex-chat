@@ -1,16 +1,16 @@
 # this is for reflex engine as a server
-FROM archlinux:latest
+FROM ubuntu:latest
 
 WORKDIR /app
 
 COPY webui /app/
 
 # Transaction #3, #4 & #5
-RUN pacman -Syyu  --noconfirm && \
-    pacman -S base-devel nodejs python3 python-pip --noconfirm && \
-    pacman -Scc --noconfirm
-
-RUN pip install --upgrade pip && \
+RUN apt-get update  -y && \
+    apt-get install python3 python3-dev python3-venv nodejs gcc python3-pip -y && \
+    pip install --upgrade pip && \
     pip install -r requirements.txt
 
-EXPOSE 54000
+EXPOSE 3000 8000
+
+CMD [ "reflex init && reflex run --env prod" ]
