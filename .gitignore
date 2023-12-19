@@ -19,3 +19,4 @@ frontend.zip
 poetry.lock
 run.sh
 venv/
+docker-compose.yml
